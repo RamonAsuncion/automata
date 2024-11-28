@@ -26,6 +26,7 @@ def run_tests(automata, label, test_cases):
 
 def visualize(automaton):
   dot = Digraph(comment=type(automaton).__name__, format='png')
+  # reference: https://graphviz.org/Gallery/directed/fsm.html
   dot.attr(rankdir='LR')
 
   def nameof(state):
