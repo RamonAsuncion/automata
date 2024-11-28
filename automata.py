@@ -24,7 +24,6 @@ def run_tests(automata, label, test_cases):
 
   print(sep)
 
-# use graphviz to visualize (do a bit of parsing)
 def visualize(automaton):
   dot = Digraph(comment=type(automaton).__name__, format='png')
   dot.attr(rankdir='LR')
@@ -35,7 +34,7 @@ def visualize(automaton):
   if isinstance(automaton, DFA):
     # states
     for q in automaton.Q:
-      q_name=nameof(q)
+      q_name = nameof(q)
       if q == automaton.q0 and q in automaton.F:
         dot.node(q_name, shape='doublecircle')
       elif q == automaton.q0:
@@ -46,14 +45,45 @@ def visualize(automaton):
         dot.node(q_name, shape='circle')
 
     # transitions
-    for (q,symbol), p in automaton.δ.items():
-      q_name=nameof(q)
-      next_q_name=nameof(p)
+    for (q,symbol), next_q in automaton.δ.items():
+      q_name = nameof(q)
+      next_q_name = nameof(next_q)
       dot.edge(q_name, next_q_name, label=symbol)
 
     # start arrow (https://stackoverflow.com/a/50859148)
     dot.node('', shape='none', width='0', height='0')
     dot.edge('', nameof(automaton.q0), arrowhead='normal')
+  elif isinstance(automaton, NFA):
+    for q in automaton.Q:
+      q_name = nameof(q)
+      if q == automaton.S:
+        dot.node(q_name, shape='circle')
+      elif q in automaton.F:
+        dot.node(q_name, shape='doublecircle')
+      else:
+        dot.node(q_name, shape='circle')
+
+    # transitions
+    for (q,symbol), P in automaton.δ.items():
+      q_name = nameof(q)
+      next_q_names = [nameof(p) for p in P]
+      for next_q_name in next_q_names:
+        if symbol != "":
+          dot.edge(q_name, next_q_name, label=symbol)
+
+    # epsilon
+    for q in automaton.Q:
+      e = automaton.δ.get((q,""),set())
+      if e:
+        q_name = nameof(q)
+        for t in e:
+          q_next_name = nameof(t)
+          dot.edge(q_name, q_next_name, label='ε')
+
+    dot.node('', shape='none', width='0', height='0')
+    dot.edge('', nameof(next(iter(automaton.S))), arrowhead='normal')
+  else:
+    raise ValueError("Auomaton not a DFA or NFA!")
 
   return dot
 
@@ -184,6 +214,9 @@ N0_tests = [
 ]
 
 run_tests(N0, "NFA0", N0_tests)
+
+dotN0 = visualize(N0)
+dotN0.render('NFA0', view=True)
 
 # reference: https://algos.world/21sp/notes/epsilon-closure.pdf
 N1 = NFA({0,1,2,3,4},{0,1},
