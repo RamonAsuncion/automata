@@ -3,6 +3,7 @@
 # 2. https://www.youtube.com/watch?v=32bC33nJR3A
 # 2. https://en.wikipedia.org/wiki/Nondeterministic_finite_automaton
 # 3. https://en.wikipedia.org/wiki/Deterministic_finite_automaton
+from graphviz import Digraph
 
 def run_tests(automata, label, test_cases):
   sep="="*(len(label)+14)
@@ -24,8 +25,37 @@ def run_tests(automata, label, test_cases):
   print(sep)
 
 # use graphviz to visualize (do a bit of parsing)
-def visualize():
-  pass
+def visualize(automaton):
+  dot = Digraph(comment=type(automaton).__name__, format='png')
+  dot.attr(rankdir='LR')
+
+  def nameof(state):
+    return f"q{state}"
+ 
+  if isinstance(automaton, DFA):
+    # states
+    for q in automaton.Q:
+      q_name=nameof(q)
+      if q == automaton.q0 and q in automaton.F:
+        dot.node(q_name, shape='doublecircle')
+      elif q == automaton.q0:
+        dot.node(q_name, shape='circle')
+      elif q in automaton.F:
+        dot.node(q_name, shape='doublecircle')
+      else:
+        dot.node(q_name, shape='circle')
+
+    # transitions
+    for (q,symbol), p in automaton.δ.items():
+      q_name=nameof(q)
+      next_q_name=nameof(p)
+      dot.edge(q_name, next_q_name, label=symbol)
+
+    # start arrow (https://stackoverflow.com/a/50859148)
+    dot.node('', shape='none', width='0', height='0')
+    dot.edge('', nameof(automaton.q0), arrowhead='normal')
+
+  return dot
 
 class DFA:
   def __init__(self, Q, Σ, δ, q0, F):
@@ -65,6 +95,9 @@ D0_tests = [
 ]
 
 run_tests(D0, "DFA0", D0_tests)
+
+dotD0 = visualize(D0)
+dotD0.render('DFA0', view=True)
 
 # L = { set of all string {0,1} that ends with 11}}
 D1 = DFA({0,1,2},{0,1},
