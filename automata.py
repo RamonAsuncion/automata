@@ -235,5 +235,31 @@ N1_tests = [
   ("010", True)
 ]
 
+
 run_tests(N1, "NFA1", N1_tests)
 
+# regular expression ab*a
+N2 = NFA({0,1,2,3},{"a","b"},
+         {(0,"a"):{1},
+          (1,"b"):{1},(1,""):{2},
+          (2,"b"):{2},(2,"a"):{3}},
+         {0},
+         {3})
+
+
+N2_tests = [
+  # string, expected
+  ("aa", True),
+  ("aba", True),
+  ("abbbbba", True),
+  ("abaaba", False),
+  ("aaba", False),
+  ("abaa", False),
+  ("aaaabaaaa", False)
+]
+
+
+run_tests(N2, "NFA2", N2_tests)
+
+dotN2 = visualize(N2)
+dotN2.render('NFA2', view=True)
