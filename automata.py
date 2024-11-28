@@ -8,8 +8,13 @@ from graphviz import Digraph
 def run_tests(automata, label, test_cases):
   sep="="*(len(label)+14)
 
+  CYAN = '\033[96m'
+  GREEN = '\033[92m'
+  RED = '\033[91m'
+  RESET = '\033[0m'
+
   print(sep)
-  print(f"Testing {label}")
+  print(f"{CYAN}Testing {label}{RESET}")
   print(sep)
 
   print(automata)
@@ -18,9 +23,9 @@ def run_tests(automata, label, test_cases):
   for test, expected in test_cases:
     result = automata.run(test)
     if result == expected:
-      print(f"PASSED:\n\t Input: {test}\n\t Accepted: {result}\n")
+      print(f"{GREEN}PASSED:{RESET}\n\t Input: {test}\n\t Accepted: {result}\n")
     else:
-      print(f"FAILED:\n\t Input: {test}\n\t Accepted: {result}\n")
+      print(f"{REST}FAILED:{RESET}\n\t Input: {test}\n\t Accepted: {result}\n")
 
   print(sep)
 
